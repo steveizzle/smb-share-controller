@@ -1,0 +1,16 @@
+domain: k8s.hirnkastl.com
+layout:
+- go.kubebuilder.io/v4-alpha
+projectName: smb-share-controller
+repo: github.com/steveizzle/smb-share-controller
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: k8s.hirnkastl.com
+  group: share
+  kind: SmbShare
+  path: github.com/steveizzle/smb-share-controller/api/v1beta1
+  version: v1beta1
+version: "3"

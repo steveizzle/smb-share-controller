@@ -1,0 +1,27 @@
+# permissions for end users to view smbshares.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: smbshare-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: smb-share-controller
+    app.kubernetes.io/part-of: smb-share-controller
+    app.kubernetes.io/managed-by: kustomize
+  name: smbshare-viewer-role
+rules:
+- apiGroups:
+  - share.k8s.hirnkastl.com
+  resources:
+  - smbshares
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - share.k8s.hirnkastl.com
+  resources:
+  - smbshares/status
+  verbs:
+  - get
