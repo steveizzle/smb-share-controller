@@ -28,20 +28,31 @@ type SmbShareSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Foo is an example field of SmbShare. Edit smbshare_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	// Path to did share
+	Path string `json:"path"`
+	// Secret Reference Name
+	SecretName string `json:"secretName"`
+	// MountOptions with default values
+	// +kubebuilder:default={"file_mode=0700", "dir_mode=0777", "uid=1001", "gid=1001", "vers=3.0"}
+	MountOptions []string `json:"mountOptions,omitempty"`
 }
 
 // SmbShareStatus defines the observed state of SmbShare
 type SmbShareStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+	PvName  string `json:"pvname"`
+	PvcName string `json:"pvcname"`
 }
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+//+kubebuilder:printcolumn:name="PVName",type=string,JSONPath=`.status.pvname`
+//+kubebuilder:printcolumn:name="PVCName",type=string,JSONPath=`.status.pvcname`
+//+kubebuilder:printcolumn:name="Path",type=string,JSONPath=`.spec.path`
 
 // SmbShare is the Schema for the smbshares API
+// +kubebuilder:subresource:status
 type SmbShare struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

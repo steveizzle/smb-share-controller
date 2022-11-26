@@ -1,0 +1,87 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.9.2
+  creationTimestamp: null
+  name: smbshares.share.k8s.hirnkastl.com
+spec:
+  group: share.k8s.hirnkastl.com
+  names:
+    kind: SmbShare
+    listKind: SmbShareList
+    plural: smbshares
+    singular: smbshare
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.pvname
+      name: PVName
+      type: string
+    - jsonPath: .status.pvcname
+      name: PVCName
+      type: string
+    - jsonPath: .spec.path
+      name: Path
+      type: string
+    name: v1beta1
+    schema:
+      openAPIV3Schema:
+        description: SmbShare is the Schema for the smbshares API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: SmbShareSpec defines the desired state of SmbShare
+            properties:
+              mountOptions:
+                default:
+                - file_mode=0700
+                - dir_mode=0777
+                - uid=1001
+                - gid=1001
+                - vers=3.0
+                description: MountOptions with default values
+                items:
+                  type: string
+                type: array
+              path:
+                description: Path to did share
+                type: string
+              secretName:
+                description: Secret Reference Name
+                type: string
+            required:
+            - path
+            - secretName
+            type: object
+          status:
+            description: SmbShareStatus defines the observed state of SmbShare
+            properties:
+              pvcname:
+                type: string
+              pvname:
+                description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
+                  of cluster Important: Run "make" to regenerate code after modifying
+                  this file'
+                type: string
+            required:
+            - pvcname
+            - pvname
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
