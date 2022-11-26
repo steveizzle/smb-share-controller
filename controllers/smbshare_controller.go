@@ -52,13 +52,6 @@ type SmbShareReconciler struct {
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
-// TODO(user): Modify the Reconcile function to compare the state specified by
-// the SmbShare object against the actual cluster state, and then
-// perform operations to make the cluster state reflect the state specified by
-// the user.
-//
-// For more details, check Reconcile and its Result here:
-// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.13.0/pkg/reconcile
 func (r *SmbShareReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logging := log.FromContext(ctx)
 
@@ -146,14 +139,13 @@ func (r *SmbShareReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		} // apply could be later added here to e..g change mount_options
 	}
 
-	// INFO: used to set owner, but didnt work because unfortunately cluster objects cant be owned by namespaced objects
+	// INFO: used to set owner, but didnt work because cluster objects cant be owned by namespaced objects
 	// finalizer is used instead
 	// if err := controllerutil.SetControllerReference(share, pv, r.Scheme); err != nil {
 	// 	logging.Error(err, "Failed to set reference")
 	// }
 
 	// creating the pvc
-
 	newPvc := createPvc(req.Name, req.Namespace, pvName)
 
 	// Getting pvc
@@ -254,8 +246,7 @@ func createPv(pvName, secretNamespace, secretName, path string, mountOptions []s
 func (r *SmbShareReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&sharev1beta1.SmbShare{}).
-		// Looks for objects, not necessary and handled atm
-		// Owns(&corev1.PersistentVolumeClaim{}).
-		//		Owns(&corev1.PersistentVolume{}).
+		// reconciliation for pvc, but not inevitable necesseray
+		Owns(&corev1.PersistentVolumeClaim{}).
 		Complete(r)
 }
