@@ -1,0 +1,22 @@
+name: Test 
+
+on: pull_request
+
+jobs:
+  create-cluster:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create k8s Kind Cluster
+        uses: helm/kind-action@v1.3.0
+      - name: Install kubectl
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+      - name: Install kustomize
+        run: make kustomize
+      - name: Install Kind
+        run: go get sigs.k8s.io/kind
+      - name: Get Pods
+        run: kubectl get pods -A
+      - name: Run Tests
+        run: make kuttl-test
