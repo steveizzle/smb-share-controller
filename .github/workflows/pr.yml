@@ -24,5 +24,7 @@ jobs:
           ./"${KREW}" install krew
           ./"${KREW}" install kuttl
           echo 'export PATH="${PATH}:${HOME}/.krew/bin"' >> ~/.bashrc
+      - name: Install Controller
+        run: make deploy IMG=steveizzle/smb-share-controller:latest
       - name: Run Tests
         run: ${HOME}/.krew/bin/kubectl-kuttl test --start-kind=false ./tests/e2e
