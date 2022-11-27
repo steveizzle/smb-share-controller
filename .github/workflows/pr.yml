@@ -23,5 +23,6 @@ jobs:
           tar zxvf "${KREW}.tar.gz"
           ./"${KREW}" install krew
           ./"${KREW}" install kuttl
+          echo 'export PATH="${PATH}:${HOME}/.krew/bin"' >> ~/.bashrc
       - name: Run Tests
-        run: make kuttl-test
+        run: bash make kuttl-test
