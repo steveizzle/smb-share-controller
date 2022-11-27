@@ -16,7 +16,12 @@ jobs:
         run: |
           curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
           sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-      - name: Get Pods
-        run: kubectl get pods -A
+      - name: Install Krew and kuttl
+        run: |
+          KREW="krew-linux_amd64"
+          curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/${KREW}.tar.gz"
+          tar zxvf "${KREW}.tar.gz"
+          ./"${KREW}" install krew
+          kubectl krew install kuttl
       - name: Run Tests
         run: make kuttl-test
