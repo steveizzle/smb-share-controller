@@ -25,4 +25,5 @@ jobs:
           ./"${KREW}" install kuttl
           echo 'export PATH="${PATH}:${HOME}/.krew/bin"' >> ~/.bashrc
       - name: Run Tests
-        run: bash make kuttl-test
+        run: make kuttl-test
+        shell: bash
