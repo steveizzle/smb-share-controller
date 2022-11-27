@@ -3,9 +3,13 @@ name: Test
 on: pull_request
 
 jobs:
-  create-cluster:
+  integration-test:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Create k8s Kind Cluster
         uses: helm/kind-action@v1.3.0
       - name: Install kubectl
