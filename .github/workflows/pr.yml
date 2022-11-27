@@ -22,6 +22,6 @@ jobs:
           curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/${KREW}.tar.gz"
           tar zxvf "${KREW}.tar.gz"
           ./"${KREW}" install krew
-          kubectl krew install kuttl
+          ./"${KREW}" install kuttl
       - name: Run Tests
         run: make kuttl-test
