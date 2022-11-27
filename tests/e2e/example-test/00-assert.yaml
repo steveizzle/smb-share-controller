@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  labels:
+    smb-controller: test-smbshare
+  name: smb-default-test-smbshare
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 100Gi
+  csi:
+    driver: smb.csi.k8s.io
+    nodeStageSecretRef:
+      name: test
+      namespace: default
+    volumeAttributes:
+      source: /example/path
+    volumeHandle: smb-default-test-smbshare
+  mountOptions:
+  - file_mode=0700
+  - dir_mode=0777
+  persistentVolumeReclaimPolicy: Delete
+  volumeMode: Filesystem
+status:
+  phase: Bound
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: test-smbshare
+  namespace: default
+  ownerReferences:
+  - apiVersion: share.k8s.hirnkastl.com/v1beta1
+    blockOwnerDeletion: true
+    controller: true
+    kind: SmbShare
+    name: test-smbshare
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: ""
+  volumeMode: Filesystem
+  volumeName: smb-default-test-smbshare
+status:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 100Gi
+  phase: Bound
+---
+apiVersion: share.k8s.hirnkastl.com/v1beta1
+kind: SmbShare
+metadata:
+  finalizers:
+  - share.k8s.hirnkastl.com/finalizer
+  generation: 1
+  labels:
+    app.kubernetes.io/created-by: smb-controller
+    app.kubernetes.io/instance: test-smbshare
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: test-smbshare
+    app.kubernetes.io/part-of: smb-controller
+  name: test-smbshare
+  namespace: default
+spec:
+  mountOptions:
+  - file_mode=0700
+  - dir_mode=0777
+  path: /example/path
+  secretName: test
+status:
+  pvcname: test-smbshare
+  pvname: smb-default-test-smbshare

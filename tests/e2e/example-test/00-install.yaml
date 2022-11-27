@@ -1,0 +1,18 @@
+apiVersion: share.k8s.hirnkastl.com/v1beta1
+kind: SmbShare
+metadata:
+  labels:
+    app.kubernetes.io/name: test-smbshare
+    app.kubernetes.io/instance: test-smbshare
+    app.kubernetes.io/part-of: smb-controller
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: smb-controller
+  name: test-smbshare
+  namespace: default
+spec:
+  path: "/example/path"
+  secretName: "test"
+  mountOptions:
+    - "file_mode=0700"
+    - "dir_mode=0777"
+    
