@@ -1,3 +1,13 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+timeout: 60
+# commands:
+# - command: echo hello
+collectors:
+- type: pod
+  selector: "control-plane=controller-manager"
+  namespace: "smb-share-controller-system"
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
