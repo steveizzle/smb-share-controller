@@ -2,7 +2,8 @@ apiVersion: kuttl.dev/v1beta1
 kind: TestAssert
 timeout: 300
 commands:
-- command: kubectl describe pod -n smb-share-controller-system && kubectl wait --for=condition=available --timeout=60s -n smb-share-controller-system --all deployments
+- command: kubectl describe pod -n smb-share-controller-system
+- command: kubectl wait --for=condition=available --timeout=60s -n smb-share-controller-system --all deployments
 collectors:
 - type: pod
   selector: "control-plane=controller-manager"
