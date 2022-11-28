@@ -1,4 +1,12 @@
 apiVersion: v1
+kind: Deployment
+metadata:
+  namespace: smb-share-controller-system
+  name: smb-share-controller-controller-manager
+status:
+  readyReplicas: 1
+---
+apiVersion: v1
 kind: PersistentVolume
 metadata:
   labels:
