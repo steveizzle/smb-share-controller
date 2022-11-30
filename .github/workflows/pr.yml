@@ -12,12 +12,8 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
-      - name: Set env
+      - name: Set Tag
         run: '[[ ${GITHUB_REF#refs/*/} =~ ^v[0-9]*.[0-9]*.[0-9]*$ ]] && echo "TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV || echo "TAG=${{ github.sha }}" >> $GITHUB_ENV'
-      - name: Test
-        run: |
-          echo $TAG
-          echo ${{ env.TAG }}
       - name: Log in to GitHub Docker Registry
         uses: docker/login-action@v1
         with:
@@ -32,6 +28,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: build_and_push
     steps:
+      - name: Set Tag
+        run: '[[ ${GITHUB_REF#refs/*/} =~ ^v[0-9]*.[0-9]*.[0-9]*$ ]] && echo "TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV || echo "TAG=${{ github.sha }}" >> $GITHUB_ENV'
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -54,11 +52,13 @@ jobs:
         run: make deploy IMG=ghcr.io/steveizzle/smb-share-controller:${{ env.TAG }}
       - name: Run Kuttle Tests
         run: ${HOME}/.krew/bin/kubectl-kuttl test --start-kind=false ./tests/e2e
-      - uses: "marvinpinto/action-automatic-releases@latest"
-        if: ${{ github.ref_type == 'tag' }}
+  release:
+    if: ${{ github.ref_type == 'tag' }}
+    runs-on: ubuntu-latest
+    needs: integration-test
+    steps:
+      - name: release
+        uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
-          files: |
-            LICENSE.txt
-            *.jar
