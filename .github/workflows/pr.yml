@@ -1,7 +1,10 @@
 name: Test 
 
-on: pull_request
-
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+  pull_request:
 jobs:
   build_and_push:
     name: Push Docker image to GitHub Packages
@@ -9,6 +12,8 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
+      - name: Set Tag
+        run: '[[ ${GITHUB_REF#refs/*/} =~ ^v[0-9]*.[0-9]*.[0-9]*$ ]] && echo "TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV || echo "TAG=${{ github.sha }}" >> $GITHUB_ENV'
       - name: Log in to GitHub Docker Registry
         uses: docker/login-action@v1
         with:
@@ -16,19 +21,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.REGISTRY_TOKEN }}
       - name: Unit Test and build docker Image
-        run: make docker-build IMG=ghcr.io/steveizzle/smb-share-controller:${{ github.sha }}
+        run: make docker-build IMG=ghcr.io/steveizzle/smb-share-controller:${{ env.TAG }}
       - name: Push docker Image
-        run: make docker-push IMG=ghcr.io/steveizzle/smb-share-controller:${{ github.sha }}
-      # - name: Build container image
-      #   uses: docker/build-push-action@v2
-      #   with:
-      #     push: true
-      #     tags: |
-      #       ghcr.io/steveizzle/smb-share-controller:${{ github.sha }}
+        run: make docker-push IMG=ghcr.io/steveizzle/smb-share-controller:${{ env.TAG }}
   integration-test:
     runs-on: ubuntu-latest
     needs: build_and_push
     steps:
+      - name: Set Tag
+        run: '[[ ${GITHUB_REF#refs/*/} =~ ^v[0-9]*.[0-9]*.[0-9]*$ ]] && echo "TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV || echo "TAG=${{ github.sha }}" >> $GITHUB_ENV'
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -48,6 +49,16 @@ jobs:
           ./"${KREW}" install kuttl
           echo 'export PATH="${PATH}:${HOME}/.krew/bin"' >> ~/.bashrc
       - name: Install Controller
-        run: make deploy IMG=ghcr.io/steveizzle/smb-share-controller:${{ github.sha }}
+        run: make deploy IMG=ghcr.io/steveizzle/smb-share-controller:${{ env.TAG }}
       - name: Run Kuttle Tests
         run: ${HOME}/.krew/bin/kubectl-kuttl test --start-kind=false ./tests/e2e
+  release:
+    if: ${{ github.ref_type == 'tag' && github.ref_name == 'main' }}
+    runs-on: ubuntu-latest
+    needs: integration-test
+    steps:
+      - name: release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
