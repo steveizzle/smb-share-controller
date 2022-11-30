@@ -13,11 +13,11 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v2
       - name: Set env
-        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+        run: '[[ ${GITHUB_REF#refs/*/} =~ ^v[0-9]*.[0-9]*.[0-9]*$ ]] && echo "TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV || echo "TAG=${{ github.sha }}" >> $GITHUB_ENV'
       - name: Test
         run: |
-          echo $RELEASE_VERSION
-          echo ${{ env.RELEASE_VERSION }}
+          echo $TAG
+          echo ${{ env.TAG }}
       - name: Log in to GitHub Docker Registry
         uses: docker/login-action@v1
         with:
