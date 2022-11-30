@@ -25,9 +25,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.REGISTRY_TOKEN }}
       - name: Unit Test and build docker Image
-        run: make docker-build IMG=ghcr.io/steveizzle/smb-share-controller:${{ github.sha }}
+        run: make docker-build IMG=ghcr.io/steveizzle/smb-share-controller:${{ env.TAG }}
       - name: Push docker Image
-        run: make docker-push IMG=ghcr.io/steveizzle/smb-share-controller:${{ github.sha }}
+        run: make docker-push IMG=ghcr.io/steveizzle/smb-share-controller:${{ env.TAG }}
   integration-test:
     runs-on: ubuntu-latest
     needs: build_and_push
@@ -51,6 +51,14 @@ jobs:
           ./"${KREW}" install kuttl
           echo 'export PATH="${PATH}:${HOME}/.krew/bin"' >> ~/.bashrc
       - name: Install Controller
-        run: make deploy IMG=ghcr.io/steveizzle/smb-share-controller:${{ github.sha }}
+        run: make deploy IMG=ghcr.io/steveizzle/smb-share-controller:${{ env.TAG }}
       - name: Run Kuttle Tests
         run: ${HOME}/.krew/bin/kubectl-kuttl test --start-kind=false ./tests/e2e
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        if: ${{ github.ref_type == 'tag' }}
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          files: |
+            LICENSE.txt
+            *.jar
