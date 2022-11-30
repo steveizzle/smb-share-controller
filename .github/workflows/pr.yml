@@ -3,8 +3,31 @@ name: Test
 on: pull_request
 
 jobs:
+  build_and_push:
+    name: Push Docker image to GitHub Packages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Log in to GitHub Docker Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.REGISTRY_TOKEN }}
+      - name: Unit Test and build docker Image
+        run: make docker-build IMG=ghcr.io/steveizzle/smb-share-controller:${{ github.sha }}
+      - name: Push docker Image
+        run: make docker-push IMG=ghcr.io/steveizzle/smb-share-controller:${{ github.sha }}
+      # - name: Build container image
+      #   uses: docker/build-push-action@v2
+      #   with:
+      #     push: true
+      #     tags: |
+      #       ghcr.io/steveizzle/smb-share-controller:${{ github.sha }}
   integration-test:
     runs-on: ubuntu-latest
+    needs: build_and_push
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -25,6 +48,6 @@ jobs:
           ./"${KREW}" install kuttl
           echo 'export PATH="${PATH}:${HOME}/.krew/bin"' >> ~/.bashrc
       - name: Install Controller
-        run: make deploy IMG=steveizzle/smb-share-controller:latest
-      - name: Run Tests
+        run: make deploy IMG=steveizzle/smb-share-controller:${{ github.sha }}
+      - name: Run Kuttle Tests
         run: ${HOME}/.krew/bin/kubectl-kuttl test --start-kind=false ./tests/e2e
